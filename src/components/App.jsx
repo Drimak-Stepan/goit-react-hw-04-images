@@ -31,7 +31,11 @@ class App extends React.Component {
       this.setState({ status: 'pending' });
       API.fetchImage(nextQuery, nextPage)
         .then(items => {
-          this.setState({ items: items.hits, status: 'resolved' });
+          const { hits } = items;
+          this.setState({
+            items: this.state.items.concat(hits),
+            status: 'resolved',
+          });
         })
         .catch(error => this.setState({ error, status: 'rejected' }));
     }
@@ -43,7 +47,6 @@ class App extends React.Component {
 
   loadMore = () => {
     this.setState(prevState => ({ page: prevState.page + 1 }));
-    console.log(this.state.page);
   };
 
   onSelectImg = link => {
