@@ -8,6 +8,7 @@ import Modal from './Modal';
 import API from '../services/api';
 
 import { AppCss, Block } from './App.styled';
+import { scrollToTop, scrollHandler } from '../services/scroll';
 
 class App extends React.Component {
   static defaultProps = {
@@ -28,19 +29,20 @@ class App extends React.Component {
     const prevPage = prevState.page;
     const nextPage = this.state.page;
     if (prevPage !== nextPage || prevQuery !== nextQuery) {
+      scrollToTop();
       this.setState({ status: 'pending' });
       API.fetchImage(nextQuery, nextPage)
         .then(items => {
           const { hits } = items;
-          this.setState({
-            items: this.state.items.concat(hits),
+          this.setState(() => ({
+            items: [...prevState.items, ...hits],
             status: 'resolved',
-          });
+          }));
+          scrollHandler();
         })
         .catch(error => this.setState({ error, status: 'rejected' }));
     }
   }
-
   handleFormSubmit = query => {
     this.setState({ query, page: 1, items: [] });
   };
