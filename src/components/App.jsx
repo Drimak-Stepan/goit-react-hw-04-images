@@ -36,7 +36,6 @@ class App extends React.Component {
           const { hits } = items;
           this.setState(() => ({
             items: [...prevState.items, ...hits],
-            status: 'resolved',
           }));
           scrollHandler();
         })
@@ -76,7 +75,7 @@ class App extends React.Component {
         {items.length > 0 && (
           <ImageGallery items={items} onSelect={this.onSelectImg} />
         )}
-        {items.length > 12 && <Button onClick={this.loadMore}>Lore more</Button>}
+        {items.length > 11 && <Button onClick={this.loadMore}>Lore more</Button>}
         {status === 'pending' && (
           <Block>
             <Loader />
