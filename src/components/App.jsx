@@ -73,10 +73,10 @@ class App extends React.Component {
             <h2>{error.message}</h2>
           </Block>
         )}
-        {status === 'resolved' && (
+        {items.length > 0 && (
           <ImageGallery items={items} onSelect={this.onSelectImg} />
         )}
-        {items.length > 0 && <Button onClick={this.loadMore}>Lore more</Button>}
+        {items.length > 12 && <Button onClick={this.loadMore}>Lore more</Button>}
         {status === 'pending' && (
           <Block>
             <Loader />
