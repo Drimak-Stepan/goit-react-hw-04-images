@@ -29,7 +29,7 @@ class App extends React.Component {
     const prevPage = prevState.page;
     const nextPage = this.state.page;
     if (prevPage !== nextPage || prevQuery !== nextQuery) {
-      scrollToTop();
+      
       this.setState({ status: 'pending' });
       API.fetchImage(nextQuery, nextPage)
         .then(items => {
@@ -43,7 +43,7 @@ class App extends React.Component {
     }
   }
   handleFormSubmit = query => {
-    this.setState({ query, page: 1, items: [] });
+    this.setState({ query, page: 1, items: [] });scrollToTop();
   };
 
   loadMore = () => {
