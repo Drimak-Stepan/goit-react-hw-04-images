@@ -35,7 +35,7 @@ class App extends React.Component {
         .then(items => {
           const { hits } = items;
           this.setState(() => ({
-            items: [...prevState.items, ...hits],
+            items: [...prevState.items, ...hits],status: 'resolved',
           }));
           scrollHandler();
         })
