@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
@@ -8,85 +8,83 @@ import Modal from './Modal';
 import API from '../services/api';
 
 import { AppCss, Block } from './App.styled';
-import { scrollToTop, scrollHandler } from '../services/scroll';
+import { scrollToTop, scrollToBottom } from '../services/scroll';
 
-class App extends React.Component {
-  static defaultProps = {
-    items: [],
-  };
-  state = {
-    query: '',
-    page: 1,
-    items: [],
-    largeImageUrl: '',
-    status: 'idle',
-    error: null,
-  };
+const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [largeImageUrl, setLargeImageUrl] = useState('');
+  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState('null');
 
-  componentDidUpdate(prevProps, prevState) {
-    const prevQuery = prevState.query;
-    const nextQuery = this.state.query;
-    const prevPage = prevState.page;
-    const nextPage = this.state.page;
-    if (prevPage !== nextPage || prevQuery !== nextQuery) {
-      
-      this.setState({ status: 'pending' });
-      API.fetchImage(nextQuery, nextPage)
-        .then(items => {
-          const { hits } = items;
-          this.setState(() => ({
-            items: [...prevState.items, ...hits],status: 'resolved',
-          }));
-          scrollHandler();
-        })
-        .catch(error => this.setState({ error, status: 'rejected' }));
+  useEffect(() => {
+    if (!query) {
+      return;
     }
-  }
-  handleFormSubmit = query => {
-    this.setState({ query, page: 1, items: [] });scrollToTop();
+    setStatus('pending');
+
+    API.fetchImage(query, page)
+      .then(data => {
+        const { hits } = data;
+        setImages(prevImages => {
+          return [...prevImages, ...hits];
+        });
+        setStatus('resolved');
+        scrollToBottom();
+      })
+      .catch(error => {
+        setStatus('rejected');
+        setError(error.message);
+      });
+  }, [query, page]);
+
+  const handleFormSubmit = ({ query }) => {
+    setQuery(query);
+    setPage(1);
+    setImages([]);
+    scrollToTop();
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  const onSelectImg = link => {
+    setLargeImageUrl(link);
   };
 
-  onSelectImg = link => {
-    this.setState({ largeImageUrl: link });
+  const onCloseModal = () => {
+    setLargeImageUrl('');
   };
-  onCloseModal = () => {
-    this.setState({ largeImageUrl: '' });
-  };
-  render() {
-    const { error, status, items, largeImageUrl } = this.state;
 
-    return (
-      <AppCss>
-        <Searchbar onSubmit={this.handleFormSubmit} />
-        {status === 'idle' && (
-          <Block>
-            <h2>Please, enter query</h2>
-          </Block>
-        )}
-        {status === 'rejected' && (
-          <Block>
-            <h2>{error.message}</h2>
-          </Block>
-        )}
-        {items.length > 0 && (
-          <ImageGallery items={items} onSelect={this.onSelectImg} />
-        )}
-        {items.length > 11 && <Button onClick={this.loadMore}>Lore more</Button>}
-        {status === 'pending' && (
-          <Block>
-            <Loader />
-          </Block>
-        )}
-        {largeImageUrl.length > 0 && (
-          <Modal url={largeImageUrl} onClose={this.onCloseModal} />
-        )}
-      </AppCss>
-    );
-  }
-}
+  const loadMore = () => {
+    setPage(prevPage => prevPage + 1);
+  };
+
+  return (
+    <AppCss>
+      <Searchbar onSubmit={handleFormSubmit} />
+      {status === 'idle' && (
+        <Block>
+          <h2>Please, enter query</h2>
+        </Block>
+      )}
+      {status === 'rejected' && (
+        <Block>
+          <h2>{error.message}</h2>
+        </Block>
+      )}
+      {status === 'pending' && (
+        <Block>
+          <Loader />
+        </Block>
+      )}
+      {images.length > 0 && (
+        <ImageGallery items={images} onSelect={onSelectImg} />
+      )}
+      {largeImageUrl.length > 0 && (
+        <Modal url={largeImageUrl} onClose={onCloseModal} />
+      )}
+      {images.length > 11 && <Button onClick={loadMore}>Lore more</Button>}
+    </AppCss>
+  );
+};
 
 export default App;

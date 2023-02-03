@@ -4,4 +4,4 @@ const scroll = Scroll.animateScroll;
 
 export const scrollToTop = () => scroll.scrollToTop();
 
-export const scrollHandler = () => scroll.scrollToBottom();
+export const scrollToBottom = () => scroll.scrollToBottom();
