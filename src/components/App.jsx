@@ -11,7 +11,7 @@ import { AppCss, Block } from './App.styled';
 import { scrollToTop, scrollToBottom } from '../services/scroll';
 
 const App = () => {
-  const [query, setQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [images, setImages] = useState([]);
   const [totalHits, setTotalHits] = useState(0);
@@ -23,7 +23,7 @@ const App = () => {
     const search = async () => {
       try {
         setStatus('pending');
-        const data = await fetchImage(query, page);
+        const data = await fetchImage(searchQuery, page);
         const { hits, totalHits } = data;
         setImages(prevImages => [...prevImages, ...hits]);
         setTotalHits(totalHits);
@@ -34,13 +34,18 @@ const App = () => {
         setError(error.message);
       }
     };
-    if (query) {
+    if (searchQuery) {
       search();
     }
-  }, [query, page]);
+  }, [searchQuery, page]);
 
   const handleFormSubmit = ({ query }) => {
-    setQuery(query);
+    if (query === searchQuery) {
+      alert('Enter a new word...');
+      return;
+    }
+
+    setSearchQuery(query);
     setPage(1);
     setImages([]);
     setTotalHits(0);
