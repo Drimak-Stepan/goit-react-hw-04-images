@@ -5,8 +5,8 @@ import ImageGallery from './ImageGallery';
 import Loader from './Loader';
 import Button from './Button';
 import Modal from './Modal';
-import fetchImage from '../services/api';
 
+import fetchImage from '../services/api';
 import { AppCss, Block } from './App.styled';
 import { scrollToTop, scrollToBottom } from '../services/scroll';
 
