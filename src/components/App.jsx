@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
 import Loader from './Loader';
 import Button from './Button';
 import Modal from './Modal';
-import API from '../services/api';
+import fetchImage from '../services/api';
 
 import { AppCss, Block } from './App.styled';
 import { scrollToTop, scrollToBottom } from '../services/scroll';
@@ -14,41 +14,45 @@ const App = () => {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [images, setImages] = useState([]);
+  const [totalHits, setTotalHits] = useState(0);
   const [largeImageUrl, setLargeImageUrl] = useState('');
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('null');
 
   useEffect(() => {
-    if (!query) {
-      return;
-    }
-    setStatus('pending');
-
-    API.fetchImage(query, page)
-      .then(data => {
-        const { hits } = data;
-        setImages(prevImages => {
-          return [...prevImages, ...hits];
-        });
+    const search = async () => {
+      try {
+        setStatus('pending');
+        const data = await fetchImage(query, page);
+        const { hits, totalHits } = data;
+        setImages(prevImages => [...prevImages, ...hits]);
+        setTotalHits(totalHits);
         setStatus('resolved');
         scrollToBottom();
-      })
-      .catch(error => {
+      } catch (error) {
         setStatus('rejected');
         setError(error.message);
-      });
+      }
+    };
+    if (query) {
+      search();
+    }
   }, [query, page]);
 
   const handleFormSubmit = ({ query }) => {
     setQuery(query);
     setPage(1);
     setImages([]);
+    setTotalHits(0);
     scrollToTop();
   };
 
-  const onSelectImg = link => {
-    setLargeImageUrl(link);
-  };
+  const onSelectImg = useCallback(
+    link => {
+      setLargeImageUrl(link);
+    },
+    [setLargeImageUrl]
+  );
 
   const onCloseModal = () => {
     setLargeImageUrl('');
@@ -82,7 +86,9 @@ const App = () => {
       {largeImageUrl.length > 0 && (
         <Modal url={largeImageUrl} onClose={onCloseModal} />
       )}
-      {images.length > 11 && <Button onClick={loadMore}>Lore more</Button>}
+      {images.length < totalHits && (
+        <Button onClick={loadMore}>Lore more</Button>
+      )}
     </AppCss>
   );
 };

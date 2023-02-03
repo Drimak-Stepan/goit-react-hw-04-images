@@ -11,7 +11,6 @@ import {
 
 const Searchbar = ({ onSubmit }) => {
   const [query, setQuery] = useState('');
-
   const handleSubmit = e => {
     e.preventDefault();
     if (query.trim() === '') {

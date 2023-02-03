@@ -15,5 +15,4 @@ const fetchImage = async (q, page) => {
   return data;
 };
 
-const api = { fetchImage };
-export default api;
+export default fetchImage;

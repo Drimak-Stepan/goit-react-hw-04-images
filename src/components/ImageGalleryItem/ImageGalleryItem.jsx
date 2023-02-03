@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Item, ItemImage } from './ImageGalleryItem.styled';
 
@@ -13,12 +14,11 @@ const ImageGalleryItem = ({ webformatURL, tags, onSelect, largeImageURL }) => {
   );
 };
 
-export default ImageGalleryItem;
+export default memo(ImageGalleryItem);
 
 ImageGalleryItem.propTypes = {
   webformatURL: PropTypes.string.isRequired,
   tags: PropTypes.string.isRequired,
-  largeImageURLs: PropTypes.string,
-  // .isRequired,
+  largeImageURL: PropTypes.string.isRequired,
   onSelect: PropTypes.func.isRequired,
 };
